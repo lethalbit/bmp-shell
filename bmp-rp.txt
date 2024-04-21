@@ -1,0 +1,69 @@
+
+`/dev/ttyBmpGdb`
+
+protocol buffer is 1k, do 1k non-blocking reads
+
+
+
+Initial Handshake:
+    +#
+    !GA#
+
+    read() -> &K<FW VERSION>#
+
+
+Get High-Level protocol version:
+    !HC#
+
+    read() -> &K<hex digit>#
+
+
+Init JTAG:
+    !JS#
+
+    read() -> &K0#
+
+
+JTAG Write IR:
+    !JT0403# -> Shift IR
+
+    read() -> &K0#
+
+    # Fill with 1's to get to the device we want if not the first in the chain
+    !Jd00FFFFFFFF#
+
+    read() -> &K0#
+
+    !JD18<IR>#
+
+    read() -> &KXXXXX# - Old IR
+
+    !JD00FFFFFFFF# - Post Scan
+
+    read() -> &K0#
+
+    !JT0201# - Return to Idle
+
+    read() -> &K0#
+
+JTAG Reset:
+    !JR#
+
+    read() -> &K0#
+
+
+
+
+
+!J - JTAG:
+    T - TMS Sequence:
+        XX - # Clock cycles <= 8
+        XX - Data
+    d - TDITDO Sequence (low TMS)
+        XX     - # Clock cycles <= 32
+        X{1,8} - Data
+    D - TDITDO Sequence (ends with TMS high)
+        XX     - # Clock cycles <= 32
+        X{1,8} - Data
+
+# - End Packet
